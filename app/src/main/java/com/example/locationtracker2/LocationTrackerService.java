@@ -13,8 +13,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.loopj.android.http.*;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -33,7 +36,8 @@ public class LocationTrackerService extends Service implements LocationListener 
     protected LocationManager locationManager;
 
     private static AsyncHttpClient client;
-    private static String url = "http://192.168.29.177:5000/"; // my local server
+    private static final String url = "http://192.168.29.2:5000/"; // my local
+    // server
 
     @SuppressLint("MissingPermission")
     public LocationTrackerService(Context context) {
@@ -47,7 +51,8 @@ public class LocationTrackerService extends Service implements LocationListener 
             if (!isGPSEnabled && !isNetworkEnabled) {
                 //     no location provider enabled
                 Log.i("myTag", "No location provider enabled");
-                showSettingsAlert(); // check
+                Toast.makeText(context, "No location permissions", Toast.LENGTH_SHORT).show();
+                // showSettingsAlert(); // check
             } else {
                 this.canGetLocation = true;
                 //    First get location from Network Provider
@@ -182,12 +187,14 @@ public class LocationTrackerService extends Service implements LocationListener 
 
     @Override
     public void onProviderEnabled(String s) {
-
+        Log.i("myTag", "Provider enabled: " + s);
+        Toast.makeText(getApplicationContext(), "Provider enabled: " + s, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onProviderDisabled(String s) {
-
+        Log.i("myTag", "Provider disabled: " + s);
+        Toast.makeText(getApplicationContext(), "Provider disabled: " + s, Toast.LENGTH_SHORT).show();
     }
 
     @Override
