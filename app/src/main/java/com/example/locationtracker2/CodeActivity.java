@@ -45,7 +45,7 @@ public class CodeActivity extends AppCompatActivity {
                 int inputCode = Integer.parseInt(etCode.getText().toString());
                 if(inputCode > 999) {
                     // send req to server.
-                    Toast.makeText(CodeActivity.this, inputCode, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CodeActivity.this, String.valueOf(inputCode), Toast.LENGTH_SHORT).show();
                 }
             }
         });
