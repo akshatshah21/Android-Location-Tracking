@@ -48,21 +48,17 @@ public class TripActivity extends AppCompatActivity {
               Intent intent = new Intent(TripActivity.this, CodeActivity.class);
               intent.putExtra("isBegin", false);
               // startActivityForResult(intent, RC_END_TRIP);
-              startActivity(intent);
+              startActivityForResult(intent, RC_END_TRIP);
             }
           });
           alertBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-              finish();
+              dialogInterface.cancel();
             }
           });
           alertBuilder.create();
           alertBuilder.show();
-
-          tracking = false;
-          stopLocationTracking();
-
         }
       }
     });
@@ -118,16 +114,20 @@ public class TripActivity extends AppCompatActivity {
       }
     }
   }
-  /*
+
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if(requestCode == RC_END_TRIP) {
-
+      if(data.getBooleanExtra("end", false)) {
+        tracking = false;
+        stopLocationTracking();
+        finish();
+      }
     }
   }
-  */
+
 
   private void stopLocationTracking() {
     locationTracker.stopUsingLocationService();

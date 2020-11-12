@@ -66,14 +66,18 @@ public class CodeActivity extends AppCompatActivity {
           client.post(url, requestParams, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-              Toast.makeText(CodeActivity.this, "Code Verified", Toast.LENGTH_SHORT).show();
               Intent intent;
               if(isBegin) {
                 intent = new Intent(CodeActivity.this, TripActivity.class);
+                startActivity(intent);
+                Toast.makeText(CodeActivity.this, "Code Verified", Toast.LENGTH_SHORT).show();
               } else {
-                intent = new Intent(CodeActivity.this, HomeActivity.class);
+                intent = new Intent(CodeActivity.this, TripActivity.class);
+                intent.putExtra("end", true);
+                setResult(2, intent);
+                Toast.makeText(CodeActivity.this, "Trip ended", Toast.LENGTH_SHORT).show();
               }
-              startActivity(intent);
+              finish();
             }
 
             @Override

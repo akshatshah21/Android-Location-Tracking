@@ -14,6 +14,7 @@
         android:id="@+id/tv_text"
         android:textSize="32dp"
         android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
         android:layout_marginTop="48dp"
         />
 
@@ -21,7 +22,7 @@
         android:id="@+id/et_code"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter 8-character code"
+        android:hint="Enter code"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:layout_marginTop="160dp"
