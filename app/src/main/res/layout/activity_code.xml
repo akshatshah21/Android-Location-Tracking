@@ -21,13 +21,13 @@
         android:id="@+id/et_code"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter 4-digit code"
+        android:hint="Enter 8-character code"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:layout_marginTop="160dp"
         android:textSize="48dp"
         android:inputType="number"
-        android:maxLength="4"
+        android:maxLength="8"
         />
 
     <Button
