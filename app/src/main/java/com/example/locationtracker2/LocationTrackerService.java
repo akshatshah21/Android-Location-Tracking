@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
@@ -19,14 +20,23 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import cz.msebera.android.httpclient.Header;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 
 public class LocationTrackerService extends Service implements LocationListener {
   private final Context mContext;
   boolean isGPSEnabled = false;
   boolean isNetworkEnabled = false;
-  boolean canGetLocation = false;
 
   Location location;
   double latitude, longitude;
@@ -36,8 +46,12 @@ public class LocationTrackerService extends Service implements LocationListener 
   protected LocationManager locationManager;
 
   private static AsyncHttpClient client;
-  private static final String url = "http://192.168.29.2:5000/api/location/update";
-  // server
+  private static final String url = "http://192.168.29.2:5000";
+
+  private Socket socket;
+  Timer timer;
+  TimerTask timerTask;
+  final Handler handler = new Handler();
 
   @SuppressLint("MissingPermission")
   public LocationTrackerService(Context context) {
@@ -52,9 +66,8 @@ public class LocationTrackerService extends Service implements LocationListener 
         //     no location provider enabled
         Log.i("myTag", "No location provider enabled");
         Toast.makeText(context, "No location permissions", Toast.LENGTH_SHORT).show();
-        // showSettingsAlert(); // check
+        showSettingsAlert(); // check
       } else {
-        this.canGetLocation = true;
         //    First get location from Network Provider
         try {
           if (isNetworkEnabled) {
@@ -74,47 +87,20 @@ public class LocationTrackerService extends Service implements LocationListener 
           if (isGPSEnabled) {
             locationManager.requestLocationUpdates(
               LocationManager.GPS_PROVIDER,
-              MIN_TIME_BW_UPDATES,
-              MIN_DISTANCE_CHANGE_FOR_UPDATES,
+              0,
+              0,
               this
             );
           }
         } catch (SecurityException secExp) {
           secExp.printStackTrace();
         }
+
+        pushLocationUpdates();
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
-  }
-
-
-  public Location getLocation() {
-    return location;
-  }
-
-  public void stopUsingLocationService() {
-    if (locationManager != null) {
-      locationManager.removeUpdates(LocationTrackerService.this);
-    }
-  }
-
-  public double getLatitude() {
-    if (location != null) {
-      latitude = location.getLatitude();
-    }
-    return latitude;
-  }
-
-  public double getLongitude() {
-    if (location != null) {
-      longitude = location.getLongitude();
-    }
-    return longitude;
-  }
-
-  public boolean canGetLocation() {
-    return this.canGetLocation;
   }
 
   public void showSettingsAlert() {
@@ -137,6 +123,55 @@ public class LocationTrackerService extends Service implements LocationListener 
     alertDialog.show();
   }
 
+  private void pushLocationUpdates() {
+    initSocketConn();
+    timer = new Timer();
+    initializeTimerTask();
+    timer.schedule(timerTask, 1000, 5000);
+  }
+
+  public void initSocketConn() {
+    try {
+      socket = IO.socket(url);
+
+      socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+
+        @Override
+        public void call(Object... args) {
+          Log.d("myTag", "Socket.EVENT_CONNECT");
+        }
+      });
+
+      socket.connect();
+
+
+    } catch (URISyntaxException e) {
+      Log.d("myTag", e.getMessage().toString());
+    }
+  }
+
+  private void initializeTimerTask() {
+    timerTask = new TimerTask() {
+      @Override
+      public void run() {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            JSONObject locationJson = new JSONObject();
+            try {
+              locationJson.put("longitude", longitude);
+              locationJson.put("latitude", latitude);
+              socket.emit("location-update", locationJson);
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
+
+          }
+        });
+      }
+    };
+  }
+
   @Override
   public void onLocationChanged(Location location) {
     if (location != null) {
@@ -145,34 +180,19 @@ public class LocationTrackerService extends Service implements LocationListener 
           " Longitude:" + location.getLongitude());
       latitude = location.getLatitude();
       longitude = location.getLongitude();
-      pushLocationUpdate(location);
     }
   }
 
-  public void pushLocationUpdate(Location location) {
-    // Push lat, long to the backend. Probably a POST request
-    if(location != null) {
+  @Override
+  public void onStatusChanged(String s, int i, Bundle bundle) {
 
-      RequestParams params = new RequestParams();
-      params.put("latitude", location.getLatitude());
-      params.put("longitude", location.getLongitude());
-      client.post(url, params, new AsyncHttpResponseHandler() {
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-          // called when response HTTP status is "200 OK"
-          Log.i("myTag", "POST req successful");
-        }
+  }
 
-        @Override
-        public void onFailure(int statusCode, Header[] headers, byte[] response, Throwable e) {
-          // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-          Log.i("myTag", "POST req failed. Error code: " + statusCode);
-          Log.i("myTag", "Exception:" + e.getMessage());
-        }
-
-      });
+  public void stopUsingLocationService() {
+    socket.disconnect();
+    if (locationManager != null) {
+      locationManager.removeUpdates(LocationTrackerService.this);
     }
-
   }
 
   @Override
@@ -185,11 +205,6 @@ public class LocationTrackerService extends Service implements LocationListener 
   public void onProviderDisabled(String s) {
     Log.i("myTag", "Provider disabled: " + s);
     Toast.makeText(getApplicationContext(), "Provider disabled: " + s, Toast.LENGTH_SHORT).show();
-  }
-
-  @Override
-  public void onStatusChanged(String s, int i, Bundle bundle) {
-
   }
 
   @Override
