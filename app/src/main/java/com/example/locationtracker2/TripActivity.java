@@ -22,7 +22,7 @@ public class TripActivity extends AppCompatActivity {
   private static final int RC_LOCATION_PERMISSION = 1;
   private static final int RC_END_TRIP = 2;
 
-  LocationTrackerService locationTracker;
+  FusedLocationTracker fusedLocationTracker;
   Button locationBtn;
   boolean tracking = false;
 
@@ -47,7 +47,6 @@ public class TripActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
               Intent intent = new Intent(TripActivity.this, CodeActivity.class);
               intent.putExtra("isBegin", false);
-              // startActivityForResult(intent, RC_END_TRIP);
               startActivityForResult(intent, RC_END_TRIP);
             }
           });
@@ -69,7 +68,9 @@ public class TripActivity extends AppCompatActivity {
       && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
       requestLocationPermission();
     } else {
-      locationTracker = new LocationTrackerService(this);
+      // locationTracker = new LocationTrackerService(this);
+      fusedLocationTracker = new FusedLocationTracker(this);
+
     }
   }
 
@@ -103,7 +104,7 @@ public class TripActivity extends AppCompatActivity {
         Toast.makeText(this, "Thank you. Your location is being " +
             "tracked",
           Toast.LENGTH_SHORT).show();
-        locationTracker = new LocationTrackerService(this);
+        fusedLocationTracker = new FusedLocationTracker(this);
       } else {
         Log.i("myTag", "Location permission denied");
         Toast.makeText(this, "Location permission not given!",
@@ -130,7 +131,6 @@ public class TripActivity extends AppCompatActivity {
 
 
   private void stopLocationTracking() {
-    locationTracker.stopUsingLocationService();
-    locationTracker = null;
+    fusedLocationTracker.stopUsingLocationService();
   }
 }
