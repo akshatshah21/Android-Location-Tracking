@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.IBinder;
 import android.os.Looper;
@@ -32,6 +33,8 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
+import com.example.locationtracker2.CodeActivity;
+
 public class FusedLocationTracker extends Service {
 
   private FusedLocationProviderClient fusedLocationClient;
@@ -43,11 +46,13 @@ public class FusedLocationTracker extends Service {
   private static final String url = "http://192.168.29.2:5000";
   private Socket socket;
 
+  SharedPreferences sharedPref;
+
   @SuppressLint("MissingPermission")
   public FusedLocationTracker(Context context) {
     this.context = context;
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
-
+    sharedPref = context.getSharedPreferences("com.example.locationtracker2.TRANSFER_DETAILS", Context.MODE_PRIVATE);
     fusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
       @Override
       public void onComplete(@NonNull Task<Location> task) {
@@ -97,8 +102,11 @@ public class FusedLocationTracker extends Service {
           try {
             locationJson.put("latitude", mLocation.getLatitude());
             locationJson.put("longitude", mLocation.getLongitude());
+            locationJson.put("transferId", sharedPref.getString("transferId", "ERR"));
             // can add more info, like bearing
-            socket.emit("location-update", locationJson);
+            if(socket != null) {
+              socket.emit("location-update", locationJson);
+            }
           } catch (JSONException e) {
             e.printStackTrace();
           }
