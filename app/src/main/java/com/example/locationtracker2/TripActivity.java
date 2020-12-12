@@ -29,7 +29,7 @@ public class TripActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
+    setContentView(R.layout.activity_begin_tracking);
     locationBtn = (Button) findViewById(R.id.btn_location);
     locationBtn.setOnClickListener(new View.OnClickListener() {
       @Override

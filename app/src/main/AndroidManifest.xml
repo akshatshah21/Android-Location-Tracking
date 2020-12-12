@@ -13,10 +13,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LocationTracker2"
         android:usesCleartextTraffic="true">
+        <activity android:name=".NavActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".FusedLocationTracker"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity android:name=".CodeActivity" />
         <activity android:name=".HomeActivity">
