@@ -63,7 +63,7 @@ public class FusedLocationTracker extends Service {
             if(location != null) {
               Log.d("myTag", "Location success");
               Log.d("myTag", location.getLatitude() + " " + location.getLongitude());
-              Toast.makeText(context, location.getLatitude() + " " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+              // Toast.makeText(context, location.getLatitude() + " " + location.getLongitude(), Toast.LENGTH_SHORT).show();
               mLocation = location;
             } else {
               Log.d("myTag", "location null");
@@ -111,7 +111,7 @@ public class FusedLocationTracker extends Service {
             e.printStackTrace();
           }
           Log.d("myTag", mLocation.getLatitude() + " " + mLocation.getLongitude());
-          Toast.makeText(context, mLocation.getLatitude() + " " + mLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+          // Toast.makeText(context, mLocation.getLatitude() + " " + mLocation.getLongitude(), Toast.LENGTH_SHORT).show();
         }
       }
     };

@@ -38,6 +38,9 @@ public class TripActivity extends AppCompatActivity {
           tracking = true;
           locationBtn.setText("Stop trip");
           setupLocationTracking();
+
+          Intent intent = new Intent(TripActivity.this, NavActivity.class);
+          startActivity(intent);
         } else {
           AlertDialog.Builder alertBuilder = new AlertDialog.Builder(TripActivity.this);
           alertBuilder.setTitle("End trip?");

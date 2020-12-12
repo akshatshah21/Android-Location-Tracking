@@ -77,10 +77,14 @@ public class CodeActivity extends AppCompatActivity {
                 try {
                   String transferId = response.getString("transferId");
                   String destinationId = response.getString("destinationId");
+                  double destinationLatitude = response.getDouble("destinationLatitude");
+                  double destinationLongitude = response.getDouble("destinationLongitude");
                   Log.d("myTag", "Transfer ID: " + transferId);
                   SharedPreferences.Editor editor = sharedPref.edit();
                   editor.putString("transferId", transferId);
                   editor.putString("destinationId", destinationId);
+                  editor.putFloat("destinationLatitude", (float) destinationLatitude);
+                  editor.putFloat("destinationLongitude", (float) destinationLongitude);
                   editor.apply();
 
                   Intent intent = new Intent(CodeActivity.this, TripActivity.class);
@@ -90,7 +94,7 @@ public class CodeActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                   e.printStackTrace();
                   Log.d("myTag", e.getMessage());
-                  Toast.makeText(CodeActivity.this, "Error in onSuccess", Toast.LENGTH_SHORT).show();
+                  // Toast.makeText(CodeActivity.this, "Error in onSuccess", Toast.LENGTH_SHORT).show();
                 }
 
               }
