@@ -51,24 +51,19 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 public class NavActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
 
-  private MapView mapView;
-  private MapboxMap mapboxMap;
-  private Point destinationPoint, originPoint;
-
   private final String SOURCE_ID = "destination-source-id";
   private final String ICON_ID = "destination-icon-id";
   private final String LAYER_ID = "destination-symbol-layer-id";
-
+  SharedPreferences sharedPref;
+  private MapView mapView;
+  private MapboxMap mapboxMap;
+  private Point destinationPoint, originPoint;
   private DirectionsRoute currentRoute;
   private NavigationMapRoute navigationMapRoute;
-
   // variables for adding location layer
   private PermissionsManager permissionsManager;
   private LocationComponent locationComponent;
-
   private Button button;
-
-  SharedPreferences sharedPref;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +94,6 @@ public class NavActivity extends AppCompatActivity implements OnMapReadyCallback
 
         addDestinationIconSymbolLayer(style);
 
-
-
         button = findViewById(R.id.startButton);
         button.setOnClickListener(new View.OnClickListener() {
           @Override
@@ -110,16 +103,9 @@ public class NavActivity extends AppCompatActivity implements OnMapReadyCallback
             NavigationLauncher.startNavigation(NavActivity.this, options);
           }
         });
-
-        /*Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(), locationComponent.getLastKnownLocation().getLatitude());
-        getRoute(originPoint, destinationPoint);
-        button.setEnabled(true);
-        button.setBackgroundResource(R.color.mapboxBlue);*/
-
       }
     });
   }
-
 
 
   private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle) {
@@ -142,24 +128,6 @@ public class NavActivity extends AppCompatActivity implements OnMapReadyCallback
 
   }
 
-/*  @SuppressWarnings( {"MissingPermission"} )
-  @Override
-  public boolean onMapClick(@NonNull LatLng point) {
-    Point destinationPoint = Point.fromLngLat(point.getLongitude(), point.getLatitude());
-    Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(), locationComponent.getLastKnownLocation().getLatitude());
-
-    GeoJsonSource source = mapboxMap.getStyle().getSourceAs(SOURCE_ID);
-    if(source != null) {
-      source.setGeoJson(Feature.fromGeometry(destinationPoint));
-    }
-
-    getRoute(originPoint, destinationPoint);
-    button.setEnabled(true);
-    button.setBackgroundResource(R.color.mapboxBlue);
-    return true;
-  }
-*/
-
   private void getRoute(Point origin, Point destination) {
     NavigationRoute.builder(this)
       .accessToken(Mapbox.getAccessToken())
@@ -170,10 +138,10 @@ public class NavActivity extends AppCompatActivity implements OnMapReadyCallback
         @Override
         public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
           Log.d("myTag", "getRoute: Response Code: " + response.code());
-          if(response.body() == null) {
+          if (response.body() == null) {
             Log.e("myTag", "getRoute: No routes found, make sure you set the right user and access token.");
             return;
-          } else if(response.body().routes().size() < 1) {
+          } else if (response.body().routes().size() < 1) {
             Log.e("myTag", "getRoute: No routes found");
             return;
           }
@@ -181,7 +149,7 @@ public class NavActivity extends AppCompatActivity implements OnMapReadyCallback
           currentRoute = response.body().routes().get(0);
 
           // Draw the route on the map
-          if(navigationMapRoute != null) {
+          if (navigationMapRoute != null) {
             navigationMapRoute.removeRoute();
           } else {
             navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
@@ -199,10 +167,10 @@ public class NavActivity extends AppCompatActivity implements OnMapReadyCallback
   }
 
   @SuppressLint("MissingPermission")
-  @SuppressWarnings( {"MissingPermissions"} )
+  @SuppressWarnings({"MissingPermissions"})
   private void enableLocationComponent(@NonNull Style loadedMapStyle) {
     // Check if permissions are enabled and if not requested
-    if(PermissionsManager.areLocationPermissionsGranted(this)) {
+    if (PermissionsManager.areLocationPermissionsGranted(this)) {
       // Activate the MapboxMap LocationComponent to show user location
       // Adding in LocationComponentOptions is also an optional param
       locationComponent = mapboxMap.getLocationComponent();
@@ -214,7 +182,7 @@ public class NavActivity extends AppCompatActivity implements OnMapReadyCallback
         @Override
         public void onSuccess(LocationEngineResult result) {
           Location location = result.getLastLocation();
-          if(location != null) {
+          if (location != null) {
             originPoint = Point.fromLngLat(location.getLongitude(), location.getLatitude());
             getRoute(originPoint, destinationPoint);
           }
